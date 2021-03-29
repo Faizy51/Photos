@@ -18,6 +18,7 @@ class PhotoImageView: UIImageView {
         options.deliveryMode = .opportunistic
         imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options) { image, _ in
             if let image = image, asset.localIdentifier == self.id {
+                // Set the fetched image
                 self.image = image
             }
         }

@@ -25,7 +25,7 @@ class MainViewModelImplementation: MainViewModel {
     var photoAssets = PHFetchResult<PHAsset>()
     
     func fetchPhotoAssets() {
-        
+        // This fetches all the available image assets from the device.
         photoAssets = PHAsset.fetchAssets(with: .image, options: PHFetchOptions())
         didFetchPhotoAssetsSucceed?()
     }
@@ -36,7 +36,5 @@ class MainViewModelImplementation: MainViewModel {
         }
         return self.photoAssets.object(at: index)
     }
-    
-    
-    
+        
 }

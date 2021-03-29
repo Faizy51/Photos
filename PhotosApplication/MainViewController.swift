@@ -11,11 +11,11 @@ import Photos
 class MainViewController: UICollectionViewController {
 
     var viewModel: MainViewModel!
-    var itemsInRow = 4
+    var itemsInRow = 4 // Initial number of photos to display in a single row
     var ROW_SPACING: CGFloat = 1
     var ITEM_SPACING: CGFloat = 1
     let photoManager = PHCachingImageManager()
-    fileprivate var thumbnailSize: CGSize!
+    fileprivate var thumbnailSize: CGSize! // Used to determine photo quality
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,28 +33,33 @@ class MainViewController: UICollectionViewController {
     }
     
     private func addGestureRecogniser() {
+        // Pinch Gesture
         let gestureRecogniser = UIPinchGestureRecognizer(target: self, action: #selector(didPinch(sender:)))
         collectionView.addGestureRecognizer(gestureRecogniser)
     }
     
     @objc private func didPinch(sender: UIPinchGestureRecognizer) {
+        // focusIndex :- Index of the photo cell on which user started zooming.
         guard let focusIndex = collectionView.indexPathForItem(at: sender.location(in: collectionView)), sender.state == .began else {
             return
         }
         
-        if sender.velocity > 0 {
+        if sender.velocity > 0 { // Zoom in
             if itemsInRow == 1 {
                 return
             }
             itemsInRow = itemsInRow == 4 ? 3 : 1
-        } else {
+        } else { // Zoom out
             if itemsInRow == 4 {
                 return
             }
             itemsInRow = itemsInRow == 1 ? 3 : 4
         }
+        // Update the image Quality and start caching new quality images.
         updateThumbnailSize()
         startCaching()
+        
+        // Animate the collectionView to update number of photos in a row.
         collectionView.performBatchUpdates({
             collectionView.reloadData()
             collectionView.collectionViewLayout.invalidateLayout()
@@ -62,6 +67,7 @@ class MainViewController: UICollectionViewController {
         }, completion: nil)
     }
     
+    // This function provides implementation of viewModel callbacks.
     private func bind() {
         viewModel.didFetchPhotoAssetsSucceed = { [weak self] in
             guard let self = self else { return }
@@ -80,6 +86,7 @@ class MainViewController: UICollectionViewController {
     }
 
     private func startCaching() {
+        // Cache all the asset images.
         let indexSet = IndexSet.init(integersIn: 0...self.viewModel.photoAssets.count-1)
         let assetList = self.viewModel.photoAssets.objects(at: indexSet)
         let options = PHImageRequestOptions()
@@ -93,6 +100,7 @@ class MainViewController: UICollectionViewController {
         collectionView.collectionViewLayout = UICollectionViewFlowLayout()
     }
     
+    // Function to check User Authorisation.
     private func requestPermission() {
         guard PHPhotoLibrary.authorizationStatus() != .authorized else {
             viewModel.fetchPhotoAssets()
