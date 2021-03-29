@@ -15,7 +15,7 @@ class PhotoImageView: UIImageView {
     func fetchImage(for asset: PHAsset, targetSize: CGSize, imageManager: PHCachingImageManager) {
         self.id = asset.localIdentifier
         let options = PHImageRequestOptions()
-//        options.deliveryMode = .opportunistic
+        options.deliveryMode = .opportunistic
         imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options) { image, _ in
             if let image = image, asset.localIdentifier == self.id {
                 self.image = image

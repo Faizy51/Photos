@@ -15,22 +15,22 @@ class MainViewController: UICollectionViewController {
     var ROW_SPACING: CGFloat = 1
     var ITEM_SPACING: CGFloat = 1
     let photoManager = PHCachingImageManager()
-//    fileprivate var thumbnailSize: CGSize!
+    fileprivate var thumbnailSize: CGSize!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel = MainViewModelImplementation()
         setupCollectionView()
-//        updateThumbnailSize()
+        updateThumbnailSize()
         bind()
         requestPermission()
         addGestureRecogniser()
     }
     
-//    private func updateThumbnailSize() {
-//        thumbnailSize = collectionView(collectionView, layout: collectionView.collectionViewLayout, sizeForItemAt: IndexPath(row: 0, section: 0))
-//        photoManager.stopCachingImagesForAllAssets()
-//    }
+    private func updateThumbnailSize() {
+        thumbnailSize = collectionView(collectionView, layout: collectionView.collectionViewLayout, sizeForItemAt: IndexPath(row: 0, section: 0))
+        photoManager.stopCachingImagesForAllAssets()
+    }
     
     private func addGestureRecogniser() {
         let gestureRecogniser = UIPinchGestureRecognizer(target: self, action: #selector(didPinch(sender:)))
@@ -53,7 +53,8 @@ class MainViewController: UICollectionViewController {
             }
             itemsInRow = itemsInRow == 1 ? 3 : 4
         }
-//        updateThumbnailSize()
+        updateThumbnailSize()
+        startCaching()
         collectionView.performBatchUpdates({
             collectionView.reloadData()
             collectionView.collectionViewLayout.invalidateLayout()
@@ -64,7 +65,7 @@ class MainViewController: UICollectionViewController {
     private func bind() {
         viewModel.didFetchPhotoAssetsSucceed = { [weak self] in
             guard let self = self else { return }
-//            self.startCaching()
+            self.startCaching()
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
             }
@@ -78,13 +79,13 @@ class MainViewController: UICollectionViewController {
         }
     }
 
-//    private func startCaching() {
-//        let indexSet = IndexSet.init(integersIn: 0...self.viewModel.photoAssets.count-1)
-//        let assetList = self.viewModel.photoAssets.objects(at: indexSet)
-//        let options = PHImageRequestOptions()
-//        options.deliveryMode = .opportunistic
-//        self.photoManager.startCachingImages(for: assetList, targetSize: self.thumbnailSize, contentMode: .aspectFill, options: options)
-//    }
+    private func startCaching() {
+        let indexSet = IndexSet.init(integersIn: 0...self.viewModel.photoAssets.count-1)
+        let assetList = self.viewModel.photoAssets.objects(at: indexSet)
+        let options = PHImageRequestOptions()
+        options.deliveryMode = .opportunistic
+        self.photoManager.startCachingImages(for: assetList, targetSize: self.thumbnailSize, contentMode: .aspectFill, options: options)
+    }
     
     private func setupCollectionView() {
         collectionView.register(PhotoCollectionViewCell.self, forCellWithReuseIdentifier: PhotoCollectionViewCell.identifier)
@@ -122,8 +123,8 @@ extension MainViewController: UICollectionViewDelegateFlowLayout {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCollectionViewCell.identifier, for: indexPath) as? PhotoCollectionViewCell else {
             fatalError("Could not dequeue cell of type \(PhotoCollectionViewCell.description())")
         }
-        let size = self.collectionView(collectionView, layout: collectionView.collectionViewLayout, sizeForItemAt: indexPath)
-        cell.imageView.fetchImage(for: viewModel.getPhotoAsset(at: indexPath.row), targetSize: size, imageManager: self.photoManager)
+//        let size = self.collectionView(collectionView, layout: collectionView.collectionViewLayout, sizeForItemAt: indexPath)
+        cell.imageView.fetchImage(for: viewModel.getPhotoAsset(at: indexPath.row), targetSize: thumbnailSize, imageManager: self.photoManager)
         return cell
     }
     
